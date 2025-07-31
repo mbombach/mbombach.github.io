@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>Gutter Pigs Game - Free Online Pig Jumping Game | Play Now</title>
+    <meta name="description" content="Play Gutter Pigs, the addictive free online pig jumping game! Help your pig collect mud puddles and avoid obstacles. No download required - play instantly in your browser.">
+    <meta name="keywords" content="gutter pigs, pig game, free online game, jumping game, browser game, html5 game, casual game, endless runner, pig jumping, mud dash, free pig game, play gutter pigs">
+    <meta name="author" content="GutterPigs.com">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Meta Tags for Social Media -->
+    <meta property="og:title" content="Gutter Pigs - Free Online Pig Jumping Game">
+    <meta property="og:description" content="Jump, dodge, and collect mud puddles in this addictive pig game! Play Gutter Pigs free online - no download needed.">
+    <meta property="og:type" content="game">
+    <meta property="og:url" content="https://gutterpigs.com">
+    <meta property="og:image" content="https://gutterpigs.com/gutter-pigs-preview.png">
+    <meta property="og:site_name" content="Gutter Pigs">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Gutter Pigs - Free Online Pig Game">
+    <meta name="twitter:description" content="The most fun pig jumping game online! Play free now.">
+    <meta name="twitter:image" content="https://gutterpigs.com/gutter-pigs-preview.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://gutterpigs.com">
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "Gutter Pigs",
+        "description": "A fun and addictive pig jumping game where you collect mud puddles and avoid obstacles",
+        "genre": ["Casual", "Arcade", "Endless Runner"],
+        "gamePlatform": "Web Browser",
+        "applicationCategory": "Game",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "GutterPigs.com"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.5",
+            "ratingCount": "1024"
+        }
+    }
+    </script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6225241289768354"
+     crossorigin="anonymous"></script>
+    
+    <!-- Google AdSense for Games (for interstitials and rewarded ads) -->
+    <script async
+        data-ad-client="ca-pub-6225241289768354"
+        data-ad-frequency-hint="30s"
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js">
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98D8C8 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        #gameContainer {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            padding: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        #gameCanvas {
+            border: 3px solid #8B4513;
+            border-radius: 10px;
+            display: block;
+            margin: 20px auto;
+            background: #F5DEB3;
+            cursor: pointer;
+        }
+        
+        h1 {
+            color: #8B4513;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            font-size: 28px;
+        }
+        
+        h2 {
+            color: #8B4513;
+            margin: 10px 0;
+        }
+        
+        #score {
+            font-size: 24px;
+            color: #333;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        #highScore {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .button {
+            background: #FF69B4;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        
+        .button:hover {
+            background: #FF1493;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.3);
+        }
+        
+        #gameOver {
+            display: none;
+            margin: 20px 0;
+        }
+        
+        #instructions {
+            color: #666;
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+        
+        .ad-container {
+            min-height: 60px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .pig-emoji {
+            font-size: 40px;
+            display: inline-block;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .reward-button {
+            background: #4CAF50;
+            font-size: 16px;
+            padding: 10px 20px;
+        }
+        
+        .reward-button:hover {
+            background: #45a049;
+        }
+        
+        /* SEO-friendly footer */
+        .game-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .game-info h3 {
+            color: #8B4513;
+            margin-bottom: 10px;
+        }
+        
+        /* Ensure ads are centered */
+        .adsbygoogle {
+            display: inline-block !important;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 480px) {
+            #gameContainer {
+                padding: 15px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            #gameCanvas {
+                width: 100%;
+                max-width: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <h1>🐷 Gutter Pigs: Mud Dash 🐷</h1>
+        
+        <!-- Top Banner Ad -->
+        <div class="ad-container" id="top-banner-ad">
+            <ins class="adsbygoogle"
+                 style="display:inline-block;width:320px;height:50px"
+                 data-ad-client="ca-pub-6225241289768354"
+                 data-ad-slot="1234567890"
+                 data-ad-format="horizontal"
+                 data-full-width-responsive="false"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+        
+        <div id="highScore">High Score: <span id="highScoreValue">0</span></div>
+        <div id="score">Score: <span id="scoreValue">0</span></div>
+        
+        <canvas id="gameCanvas" width="350" height="500"></canvas>
+        
+        <div id="gameOver">
+            <h2>Game Over!</h2>
+            <p>Your pig got stuck in the mud!</p>
+            <div class="pig-emoji">🐷</div>
+        </div>
+        
+        <button class="button" id="startButton">Start Game</button>
+        
+        <div id="instructions">
+            <p><strong>How to Play Gutter Pigs:</strong><br>
+            Click or tap to make your pig jump!<br>
+            Avoid the obstacles and collect mud puddles for bonus points!</p>
+        </div>
+        
+        <!-- Rewarded Ad Button -->
+        <button class="button reward-button" id="rewardAdButton">
+            🎬 Watch Ad for Extra Life
+        </button>
+        
+        <!-- SEO Content Section -->
+        <div class="game-info">
+            <h3>About Gutter Pigs Game</h3>
+            <p>Gutter Pigs is a free online pig jumping game that's perfect for quick gaming sessions. Help your adorable pig navigate through obstacles while collecting mud puddles for extra points. This endless runner game features simple one-tap controls, making it easy to play but hard to master. Challenge yourself to beat your high score in this addictive browser-based pig game!</p>
+            
+            <p><strong>Game Features:</strong> Free to play • No download required • Works on all devices • Endless gameplay • High score tracking • Fun pig character • Casual gaming at its best!</p>
+        </div>
+        
+        <!-- Bottom Banner Ad -->
+        <div class="ad-container" id="bottom-banner-ad">
+            <ins class="adsbygoogle"
+                 style="display:inline-block;width:320px;height:50px"
+                 data-ad-client="ca-pub-6225241289768354"
+                 data-ad-slot="0987654321"
+                 data-ad-format="horizontal"
+                 data-full-width-responsive="false"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startButton = document.getElementById('startButton');
+        const rewardAdButton = document.getElementById('rewardAdButton');
+        const scoreElement = document.getElementById('scoreValue');
+        const highScoreElement = document.getElementById('highScoreValue');
+        const gameOverDiv = document.getElementById('gameOver');
+        
+        // Game variables
+        let gameRunning = false;
+        let score = 0;
+        let highScore = localStorage.getItem('gutterPigsHighScore') || 0;
+        let extraLives = 0;
+        let gamesPlayedSinceAd = 0;
+        highScoreElement.textContent = highScore;
+        
+        // Pig object
+        const pig = {
+            x: 50,
+            y: 250,
+            width: 40,
+            height: 40,
+            velocity: 0,
+            jumpPower: -12,
+            gravity: 0.6
+        };
+        
+        // Game objects arrays
+        let obstacles = [];
+        let mudPuddles = [];
+        let particles = [];
+        
+        // Obstacle class
+        class Obstacle {
+            constructor() {
+                this.width = 30;
+                this.height = Math.random() * 150 + 50;
+                this.x = canvas.width;
+                this.y = Math.random() > 0.5 ? 0 : canvas.height - this.height;
+                this.speed = 3 + (score / 100); // Speed increases with score
+                this.passed = false;
+            }
+            
+            update() {
+                this.x -= this.speed;
+            }
+            
+            draw() {
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                // Add some detail
+                ctx.fillStyle = '#654321';
+                ctx.fillRect(this.x + 5, this.y + 5, this.width - 10, this.height - 10);
+            }
+        }
+        
+        // Mud puddle class
+        class MudPuddle {
+            constructor() {
+                this.width = 40;
+                this.height = 20;
+                this.x = canvas.width;
+                this.y = Math.random() * (canvas.height - 100) + 50;
+                this.speed = 3 + (score / 100);
+                this.collected = false;
+            }
+            
+            update() {
+                this.x -= this.speed;
+            }
+            
+            draw() {
+                if (!this.collected) {
+                    ctx.fillStyle = '#654321';
+                    ctx.beginPath();
+                    ctx.ellipse(this.x + this.width/2, this.y + this.height/2, 
+                               this.width/2, this.height/2, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Highlight
+                    ctx.fillStyle = '#8B6914';
+                    ctx.beginPath();
+                    ctx.ellipse(this.x + this.width/2 - 5, this.y + this.height/2 - 5, 
+                               this.width/3, this.height/3, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+        
+        // Particle class for effects
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 4;
+                this.vy = (Math.random() - 0.5) * 4;
+                this.life = 1;
+                this.decay = 0.02;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life -= this.decay;
+                this.vy += 0.1;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = '#8B4513';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+        
+        // Draw pig
+        function drawPig() {
+            ctx.save();
+            ctx.translate(pig.x + pig.width/2, pig.y + pig.height/2);
+            
+            // Body
+            ctx.fillStyle = '#FFB6C1';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, pig.width/2, pig.height/2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Snout
+            ctx.fillStyle = '#FF69B4';
+            ctx.beginPath();
+            ctx.ellipse(15, 0, 8, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eyes
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(5, -8, 3, 0, Math.PI * 2);
+            ctx.arc(5, 8, 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Tail
+            ctx.strokeStyle = '#FFB6C1';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(-pig.width/2, 0);
+            ctx.quadraticCurveTo(-pig.width/2 - 10, -10, -pig.width/2 - 5, -15);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+        
+        // Game functions
+        function init() {
+            pig.y = 250;
+            pig.velocity = 0;
+            obstacles = [];
+            mudPuddles = [];
+            particles = [];
+            score = 0;
+            scoreElement.textContent = score;
+            gameOverDiv.style.display = 'none';
+            startButton.textContent = 'Restart';
+        }
+        
+        function jump() {
+            if (gameRunning) {
+                pig.velocity = pig.jumpPower;
+                // Create jump particles
+                for (let i = 0; i < 5; i++) {
+                    particles.push(new Particle(pig.x + pig.width/2, pig.y + pig.height));
+                }
+            }
+        }
+        
+        function checkCollision(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+        
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            // Clear canvas
+            ctx.fillStyle = '#F5DEB3';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Update pig
+            pig.velocity += pig.gravity;
+            pig.y += pig.velocity;
+            
+            // Keep pig in bounds
+            if (pig.y < 0) {
+                pig.y = 0;
+                pig.velocity = 0;
+            }
+            if (pig.y + pig.height > canvas.height) {
+                pig.y = canvas.height - pig.height;
+                pig.velocity = 0;
+            }
+            
+            // Spawn obstacles (increase frequency with score)
+            if (Math.random() < 0.02 + (score / 10000)) {
+                obstacles.push(new Obstacle());
+            }
+            
+            // Spawn mud puddles
+            if (Math.random() < 0.01) {
+                mudPuddles.push(new MudPuddle());
+            }
+            
+            // Update and draw obstacles
+            obstacles = obstacles.filter(obstacle => {
+                obstacle.update();
+                obstacle.draw();
+                
+                // Check collision
+                if (checkCollision(pig, obstacle)) {
+                    if (extraLives > 0) {
+                        extraLives--;
+                        // Remove the obstacle
+                        return false;
+                    } else {
+                        gameOver();
+                    }
+                }
+                
+                // Score for passing obstacles
+                if (!obstacle.passed && obstacle.x + obstacle.width < pig.x) {
+                    obstacle.passed = true;
+                    score += 10;
+                    scoreElement.textContent = score;
+                }
+                
+                return obstacle.x + obstacle.width > 0;
+            });
+            
+            // Update and draw mud puddles
+            mudPuddles = mudPuddles.filter(puddle => {
+                puddle.update();
+                puddle.draw();
+                
+                // Check collection
+                if (!puddle.collected && checkCollision(pig, puddle)) {
+                    puddle.collected = true;
+                    score += 25;
+                    scoreElement.textContent = score;
+                    
+                    // Create collection particles
+                    for (let i = 0; i < 10; i++) {
+                        particles.push(new Particle(puddle.x + puddle.width/2, 
+                                                  puddle.y + puddle.height/2));
+                    }
+                }
+                
+                return puddle.x + puddle.width > 0;
+            });
+            
+            // Update and draw particles
+            particles = particles.filter(particle => {
+                particle.update();
+                particle.draw();
+                return particle.life > 0;
+            });
+            
+            // Draw pig
+            drawPig();
+            
+            // Draw extra lives indicator
+            if (extraLives > 0) {
+                ctx.fillStyle = '#4CAF50';
+                ctx.font = '16px Arial';
+                ctx.fillText(`Extra Lives: ${extraLives}`, 10, 30);
+            }
+            
+            // Continue game loop
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            gameOverDiv.style.display = 'block';
+            
+            // Update high score
+            if (score > highScore) {
+                highScore = score;
+                highScoreElement.textContent = highScore;
+                localStorage.setItem('gutterPigsHighScore', highScore);
+            }
+            
+            // Show interstitial ad every 3 games
+            gamesPlayedSinceAd++;
+            if (gamesPlayedSinceAd >= 3 && typeof adBreak !== 'undefined') {
+                gamesPlayedSinceAd = 0;
+                adBreak({
+                    type: 'next',
+                    name: 'game-over-interstitial',
+                    beforeAd: () => { 
+                        console.log('Interstitial ad starting');
+                    },
+                    afterAd: () => { 
+                        console.log('Interstitial ad finished');
+                    }
+                });
+            }
+        }
+        
+        // Event listeners
+        startButton.addEventListener('click', () => {
+            init();
+            gameRunning = true;
+            gameLoop();
+        });
+        
+        canvas.addEventListener('click', jump);
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            jump();
+        });
+        
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                jump();
+            }
+        });
+        
+        // Rewarded ad button
+        rewardAdButton.addEventListener('click', () => {
+            if (typeof adBreak !== 'undefined') {
+                adBreak({
+                    type: 'reward',
+                    name: 'extra-life-reward',
+                    beforeReward: (showAdFn) => {
+                        showAdFn();
+                    },
+                    adDismissed: () => {
+                        console.log('Reward ad dismissed');
+                    },
+                    adViewed: () => {
+                        extraLives += 3;
+                        console.log('Extra lives granted!');
+                        alert('You earned 3 extra lives!');
+                    }
+                });
+            } else {
+                // Fallback if AdSense for Games not loaded
+                alert('Ad system loading... Please try again in a moment.');
+            }
+        });
+    </script>
+</body>
+</html>
