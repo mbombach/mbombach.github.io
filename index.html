@@ -245,15 +245,16 @@
     </div>
     
     <div class="ad-container">
-        <!-- Auto Ad placement -->
+        <!-- Google AdSense Auto Ad -->
         <ins class="adsbygoogle"
-             style="display:block"
+             style="display:block; min-height: 90px;"
              data-ad-client="ca-pub-6225241289768354"
              data-ad-format="auto"
              data-full-width-responsive="true"></ins>
         <script>
              (adsbygoogle = window.adsbygoogle || []).push({});
         </script>
+        <p style="color: #666; font-size: 12px; margin-top: 10px;">Advertisement</p>
     </div>
     
     <div class="game-over-modal" id="gameOverModal">
@@ -263,10 +264,9 @@
                 <p>Your Score: <strong id="finalScore">0</strong></p>
                 <p>Best Score: <strong id="bestScore">0</strong></p>
             </div>
-            <p style="margin-bottom: 20px;">Watch an ad to continue with extra life or start over!</p>
+            <p style="margin-bottom: 20px;">Try again and beat your high score!</p>
             <div class="modal-buttons">
-                <button class="btn btn-watch-ad" onclick="watchAdForLife()">Watch Ad (+1 Life)</button>
-                <button class="btn btn-start" onclick="restartGame()">Start Over</button>
+                <button class="btn btn-start" onclick="restartGame()">Play Again</button>
             </div>
         </div>
     </div>
@@ -552,40 +552,11 @@
             document.getElementById('finalScore').textContent = score;
             document.getElementById('bestScore').textContent = highScore;
             document.getElementById('gameOverModal').style.display = 'flex';
-            
-            // Try to show an ad
-            if (typeof adsbygoogle !== 'undefined') {
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            }
         }
         
         function restartGame() {
             document.getElementById('gameOverModal').style.display = 'none';
             startGame();
-        }
-        
-        function watchAdForLife() {
-            // Simulate watching an ad
-            alert('Ad feature would be implemented here. You get +1 life and a 10-second power-up!');
-            
-            // In a real implementation, you would trigger an ad here
-            // For now, we'll just give the rewards
-            lives = 1;
-            powerUpActive = true;
-            powerUpTimer = 10000; // 10 seconds
-            document.getElementById('powerUpIndicator').style.display = 'block';
-            document.getElementById('gameOverModal').style.display = 'none';
-            
-            // Resume game with bonus
-            gameRunning = true;
-            lastTime = performance.now();
-            updateUI();
-            requestAnimationFrame(updateGame);
-            
-            // Try to show an ad
-            if (typeof adsbygoogle !== 'undefined') {
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            }
         }
         
         // Event listeners
