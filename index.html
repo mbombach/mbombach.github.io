@@ -3,94 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pig Catcher - GutterPigs.com</title>
+    <title>Pig Shooter 3D - GutterPigs.com</title>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6225241289768354"
          crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        function createTree() {
+            const tree = new THREE.Group();
+            
+            // Trunk
+            const trunkGeometry = new THREE.CylinderGeometry(1, 1.5, 8);
+            const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+            trunk.position.y = 4;
+            trunk.castShadow = true;
+            tree.add(trunk);
+            
+            // Leaves
+            const leavesGeometry = new THREE.ConeGeometry(6, 8, 8);
+            const leavesMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+            const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
+            leaves.position.y = 10;
+            leaves.castShadow = true;
+            tree.add(leaves);
+            
+            return tree;
         }
         
         body {
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            background: linear-gradient(to bottom, #87CEEB 0%, #98D98E 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-x: hidden;
+            font-family: 'Arial', sans-serif;
+            background: #1a1a1a;
+            overflow: hidden;
+            user-select: none;
         }
         
-        .header {
-            text-align: center;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            width: 100%;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .header h1 {
-            color: #D2691E;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .game-container {
-            max-width: 800px;
-            width: 100%;
-            padding: 20px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .score-board {
-            background: white;
-            padding: 15px 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            margin-bottom: 20px;
-            display: flex;
-            gap: 30px;
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-        
-        .score-item {
-            color: #333;
-        }
-        
-        .score-item span {
-            color: #D2691E;
-            font-size: 1.3em;
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
         }
         
         #gameCanvas {
-            border: 5px solid #8B4513;
-            border-radius: 15px;
-            background: #90EE90;
+            display: block;
             cursor: crosshair;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }
         
-        .controls {
-            margin-top: 20px;
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
             display: flex;
-            gap: 15px;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .score-panel {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 2px solid #FFD700;
+            color: white;
+        }
+        
+        .score-item {
+            margin: 5px 0;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .score-item span {
+            color: #FFD700;
+            font-size: 22px;
+        }
+        
+        .crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        .crosshair::before,
+        .crosshair::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        
+        .crosshair::before {
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            transform: translateY(-50%);
+        }
+        
+        .crosshair::after {
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            transform: translateX(-50%);
+        }
+        
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .start-screen h1 {
+            color: #FFD700;
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+        }
+        
+        .start-screen p {
+            color: white;
+            font-size: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 600px;
         }
         
         .btn {
-            padding: 12px 30px;
-            font-size: 1.1em;
+            padding: 15px 40px;
+            font-size: 24px;
             font-weight: bold;
             border: none;
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         
         .btn-start {
@@ -100,16 +167,17 @@
         
         .btn-start:hover {
             background: #45a049;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         }
         
         .game-over-modal {
-            position: fixed;
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
             display: none;
             justify-content: center;
             align-items: center;
@@ -117,441 +185,851 @@
         }
         
         .modal-content {
-            background: white;
+            background: #2a2a2a;
             padding: 40px;
             border-radius: 20px;
             text-align: center;
-            max-width: 400px;
-            animation: bounceIn 0.5s;
-        }
-        
-        @keyframes bounceIn {
-            0% { transform: scale(0.3); opacity: 0; }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); opacity: 1; }
+            border: 3px solid #FFD700;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
         }
         
         .modal-content h2 {
-            color: #D2691E;
+            color: #FFD700;
+            font-size: 36px;
             margin-bottom: 20px;
-            font-size: 2em;
         }
         
         .modal-score {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        
-        .btn-watch-ad {
-            background: #FF9800;
             color: white;
+            font-size: 24px;
+            margin-bottom: 30px;
         }
         
-        .btn-watch-ad:hover {
-            background: #F57C00;
-            transform: translateY(-2px);
+        .modal-score strong {
+            color: #FFD700;
+        }
+        
+        .hit-marker {
+            position: absolute;
+            color: #FFD700;
+            font-size: 32px;
+            font-weight: bold;
+            pointer-events: none;
+            animation: hitFade 0.8s ease-out forwards;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            z-index: 200;
+        }
+        
+        @keyframes hitFade {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px) scale(1.5);
+            }
+        }
+        
+        .ad-banner {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            text-align: center;
+            z-index: 5;
         }
         
         .ad-container {
-            margin: 20px 0;
-            text-align: center;
-            min-height: 100px;
-            background: #f0f0f0;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        
-        .power-up-indicator {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #FFD700;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-weight: bold;
-            display: none;
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            max-width: 728px;
+            margin: 0 auto;
+            min-height: 90px;
         }
         
         .instructions {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 25px;
             border-radius: 10px;
-            margin-top: 20px;
-            max-width: 600px;
+            color: white;
+            font-size: 16px;
+            z-index: 5;
             text-align: center;
+            border: 2px solid #FFD700;
         }
         
-        .instructions h3 {
-            color: #D2691E;
-            margin-bottom: 10px;
-        }
-        
-        @media (max-width: 600px) {
-            .header h1 {
-                font-size: 1.8em;
+        @media (max-width: 768px) {
+            .score-panel {
+                padding: 10px 15px;
             }
             
-            .score-board {
-                flex-direction: column;
-                gap: 10px;
-                font-size: 1em;
+            .score-item {
+                font-size: 14px;
             }
             
-            #gameCanvas {
-                width: 100% !important;
-                height: 400px !important;
+            .score-item span {
+                font-size: 18px;
+            }
+            
+            .start-screen h1 {
+                font-size: 32px;
+            }
+            
+            .instructions {
+                font-size: 14px;
+                bottom: 100px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🐷 Pig Catcher - GutterPigs.com 🐷</h1>
-    </div>
-    
-    <div class="game-container">
-        <div class="score-board">
-            <div class="score-item">Score: <span id="score">0</span></div>
-            <div class="score-item">High Score: <span id="highScore">0</span></div>
-            <div class="score-item">Level: <span id="level">1</span></div>
-            <div class="score-item">Lives: <span id="lives">3</span></div>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div class="ui-overlay">
+            <div class="score-panel">
+                <div class="score-item">Score: <span id="score">0</span></div>
+                <div class="score-item">High: <span id="highScore">0</span></div>
+                <div class="score-item">Level: <span id="level">1</span></div>
+            </div>
+            <div class="score-panel">
+                <div class="score-item">Range: <span id="range">Melee</span></div>
+                <div class="score-item">Time: <span id="timer">60</span>s</div>
+            </div>
         </div>
         
-        <canvas id="gameCanvas" width="700" height="500"></canvas>
-        
-        <div class="controls">
+        <div class="start-screen" id="startScreen">
+            <h1>🐷 Pig Hunter 3D 🐷</h1>
+            <p>Chase down the runaway pigs with your axe! Get close and swing to hit them. 
+            Use WASD or Arrow keys to move around. Score as many points as you can in 60 seconds!</p>
+            <p style="font-size: 16px; opacity: 0.8;">Controls: WASD/Arrows = Move • Mouse = Look • Click = Swing Axe • Space = Jump • ESC = Pause</p>
             <button class="btn btn-start" onclick="startGame()">Start Game</button>
         </div>
         
-        <div class="instructions">
-            <h3>How to Play:</h3>
-            <p>Click on the pigs to catch them before they escape! Miss 3 pigs and it's game over. 
-            Watch ads to get power-ups and extra lives! The pigs get faster as you level up!</p>
-        </div>
-    </div>
-    
-    <div class="ad-container">
-        <!-- Google AdSense Auto Ad -->
-        <ins class="adsbygoogle"
-             style="display:block; min-height: 90px;"
-             data-ad-client="ca-pub-6225241289768354"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-        <p style="color: #666; font-size: 12px; margin-top: 10px;">Advertisement</p>
-    </div>
-    
-    <div class="game-over-modal" id="gameOverModal">
-        <div class="modal-content">
-            <h2>Game Over! 🐷</h2>
-            <div class="modal-score">
-                <p>Your Score: <strong id="finalScore">0</strong></p>
-                <p>Best Score: <strong id="bestScore">0</strong></p>
-            </div>
-            <p style="margin-bottom: 20px;">Try again and beat your high score!</p>
-            <div class="modal-buttons">
+        <div class="game-over-modal" id="gameOverModal">
+            <div class="modal-content">
+                <h2>Time's Up! 🐷</h2>
+                <div class="modal-score">
+                    <p>Final Score: <strong id="finalScore">0</strong></p>
+                    <p>Best Score: <strong id="bestScore">0</strong></p>
+                    <p>Level Reached: <strong id="finalLevel">1</strong></p>
+                </div>
                 <button class="btn btn-start" onclick="restartGame()">Play Again</button>
             </div>
         </div>
-    </div>
-    
-    <div class="power-up-indicator" id="powerUpIndicator">
-        Power-Up Active! 🚀
+        
+        <div class="instructions" id="instructions">
+            Click/Tap to shoot • Move to aim • Hit the pigs!
+        </div>
+        
+        <div class="ad-banner">
+            <div class="ad-container">
+                <!-- Google AdSense Auto Ad -->
+                <ins class="adsbygoogle"
+                     style="display:block; min-height: 90px;"
+                     data-ad-client="ca-pub-6225241289768354"
+                     data-ad-format="horizontal"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+        </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        let score = 0;
-        let highScore = localStorage.getItem('pigCatcherHighScore') || 0;
-        let level = 1;
-        let lives = 3;
-        let gameRunning = false;
+        // Game variables
+        let scene, camera, renderer;
         let pigs = [];
         let particles = [];
-        let powerUpActive = false;
-        let powerUpTimer = 0;
-        let lastTime = 0;
+        let score = 0;
+        let highScore = localStorage.getItem('pigShooterHighScore') || 0;
+        let level = 1;
+        let gameRunning = false;
+        let timeLeft = 60;
+        let gameTimer;
+        let lastSpawnTime = 0;
+        let clock = new THREE.Clock();
         
-        // Update initial display
+        // Movement variables
+        let moveForward = false;
+        let moveBackward = false;
+        let moveLeft = false;
+        let moveRight = false;
+        let canJump = false;
+        let velocity = new THREE.Vector3();
+        let direction = new THREE.Vector3();
+        let rotation = 0;
+        let pitch = 0;
+        
+        // Mouse movement
+        let mouseX = 0;
+        let mouseY = 0;
+        let isPointerLocked = false;
+        
+        // Axe variables
+        let axe;
+        let isSwinging = false;
+        let swingTime = 0;
+        const swingDuration = 0.5;
+        
+        // Update initial UI
         document.getElementById('highScore').textContent = highScore;
         
-        class Pig {
-            constructor() {
-                this.size = 40 + Math.random() * 20;
-                this.x = Math.random() * (canvas.width - this.size);
-                this.y = canvas.height + this.size;
-                this.speed = 1 + level * 0.3 + Math.random() * 2;
-                this.wobble = Math.random() * Math.PI * 2;
-                this.wobbleSpeed = 0.05 + Math.random() * 0.05;
-                this.color = `hsl(${330 + Math.random() * 30}, 70%, 60%)`;
-                this.clicked = false;
+        // Initialize Three.js
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x87CEEB, 100, 500);
+            
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(
+                75,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.set(0, 5, 20);
+            camera.lookAt(0, 5, 0);
+            
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer({
+                canvas: document.getElementById('gameCanvas'),
+                antialias: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 20, 5);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.camera.left = -50;
+            directionalLight.shadow.camera.right = 50;
+            directionalLight.shadow.camera.top = 50;
+            directionalLight.shadow.camera.bottom = -50;
+            scene.add(directionalLight);
+            
+            // Sky
+            const skyGeometry = new THREE.SphereGeometry(400, 32, 32);
+            const skyMaterial = new THREE.MeshBasicMaterial({
+                color: 0x87CEEB,
+                side: THREE.BackSide
+            });
+            const sky = new THREE.Mesh(skyGeometry, skyMaterial);
+            scene.add(sky);
+            
+            // Ground
+            const groundGeometry = new THREE.PlaneGeometry(200, 200);
+            const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x90EE90 });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = 0;
+            ground.receiveShadow = true;
+            scene.add(ground);
+            
+            // Add some trees
+            for (let i = 0; i < 20; i++) {
+                const tree = createTree();
+                tree.position.set(
+                    (Math.random() - 0.5) * 150,
+                    0,
+                    (Math.random() - 0.5) * 150
+                );
+                scene.add(tree);
             }
             
-            update() {
-                this.y -= this.speed;
-                this.wobble += this.wobbleSpeed;
-                this.x += Math.sin(this.wobble) * 2;
-                
-                // Keep pig within bounds
-                if (this.x < 0) this.x = 0;
-                if (this.x > canvas.width - this.size) this.x = canvas.width - this.size;
-            }
+            // Create axe
+            createAxe();
             
-            draw() {
-                ctx.save();
-                ctx.translate(this.x + this.size/2, this.y + this.size/2);
-                
-                // Pig body
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.ellipse(0, 0, this.size/2, this.size/2.5, 0, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Snout
-                ctx.fillStyle = '#FFB6C1';
-                ctx.beginPath();
-                ctx.ellipse(0, this.size/4, this.size/4, this.size/6, 0, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Eyes
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(-this.size/5, -this.size/6, 3, 0, Math.PI * 2);
-                ctx.arc(this.size/5, -this.size/6, 3, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Ears
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.moveTo(-this.size/3, -this.size/3);
-                ctx.lineTo(-this.size/4, -this.size/2);
-                ctx.lineTo(-this.size/6, -this.size/3);
-                ctx.closePath();
-                ctx.fill();
-                
-                ctx.beginPath();
-                ctx.moveTo(this.size/3, -this.size/3);
-                ctx.lineTo(this.size/4, -this.size/2);
-                ctx.lineTo(this.size/6, -this.size/3);
-                ctx.closePath();
-                ctx.fill();
-                
-                // Tail
-                ctx.strokeStyle = this.color;
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(0, -this.size/3);
-                ctx.quadraticCurveTo(this.size/2, -this.size/2, this.size/2, -this.size/4);
-                ctx.stroke();
-                
-                ctx.restore();
-            }
+            // Event listeners
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('click', onClick);
+            window.addEventListener('touchstart', onTouchShoot);
             
-            checkClick(x, y) {
-                const dx = x - (this.x + this.size/2);
-                const dy = y - (this.y + this.size/2);
-                return Math.sqrt(dx*dx + dy*dy) < this.size/2;
+            // Movement controls
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
+            
+            // Pointer lock for mouse look
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('pointerlockchange', onPointerLockChange);
+            
+            // Mobile touch controls
+            let touchStartX = 0;
+            let touchStartY = 0;
+            document.addEventListener('touchmove', onTouchMove);
+            document.addEventListener('touchstart', onTouchStart);
+        }
+        
+        function createTree() {
+            const tree = new THREE.Group();
+            
+            // Trunk
+            const trunkGeometry = new THREE.CylinderGeometry(1, 1.5, 8);
+            const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+            trunk.position.y = 4;
+            trunk.castShadow = true;
+            tree.add(trunk);
+            
+            // Leaves
+            const leavesGeometry = new THREE.ConeGeometry(6, 8, 8);
+            const leavesMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+            const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
+            leaves.position.y = 10;
+            leaves.castShadow = true;
+            tree.add(leaves);
+            
+            return tree;
+        }
+        
+        function createAxe() {
+            axe = new THREE.Group();
+            
+            // Axe handle
+            const handleGeometry = new THREE.CylinderGeometry(0.1, 0.15, 3);
+            const handleMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+            handle.position.set(0, 0, 0);
+            axe.add(handle);
+            
+            // Axe head
+            const headGeometry = new THREE.BoxGeometry(0.8, 1.5, 0.2);
+            const headMaterial = new THREE.MeshLambertMaterial({ color: 0x708090 });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.set(0, 1.8, 0);
+            head.rotation.z = 0.1;
+            axe.add(head);
+            
+            // Axe blade edge
+            const bladeGeometry = new THREE.BoxGeometry(0.9, 1.6, 0.05);
+            const bladeMaterial = new THREE.MeshLambertMaterial({ color: 0xC0C0C0 });
+            const blade = new THREE.Mesh(bladeGeometry, bladeMaterial);
+            blade.position.set(0.05, 1.8, 0.125);
+            axe.add(blade);
+            
+            // Position axe relative to camera
+            axe.position.set(0.7, -0.5, -1);
+            axe.rotation.z = -0.5;
+            camera.add(axe);
+        }
+        
+        function swingAxe() {
+            if (isSwinging) return;
+            isSwinging = true;
+            swingTime = 0;
+            
+            // Check for pig hits at the start of swing
+            checkAxeHit();
+        }
+        
+        function updateAxeAnimation(deltaTime) {
+            if (!isSwinging) return;
+            
+            swingTime += deltaTime;
+            const progress = swingTime / swingDuration;
+            
+            if (progress >= 1) {
+                isSwinging = false;
+                axe.rotation.x = 0;
+                axe.rotation.y = 0;
+                axe.position.set(0.7, -0.5, -1);
+            } else {
+                // Swing animation
+                const swingAngle = Math.sin(progress * Math.PI) * 1.5;
+                axe.rotation.x = -swingAngle;
+                axe.position.y = -0.5 + Math.sin(progress * Math.PI) * 0.3;
+                axe.position.z = -1 - Math.sin(progress * Math.PI) * 0.5;
             }
         }
         
-        class Particle {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.vx = (Math.random() - 0.5) * 8;
-                this.vy = (Math.random() - 0.5) * 8;
-                this.life = 1;
-                this.color = `hsl(${Math.random() * 60 + 30}, 100%, 50%)`;
-                this.size = Math.random() * 5 + 2;
-            }
+        function checkAxeHit() {
+            // Create a ray from camera forward
+            const rayDirection = new THREE.Vector3(0, 0, -1);
+            rayDirection.applyQuaternion(camera.quaternion);
             
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vy += 0.2;
-                this.life -= 0.02;
-                this.size *= 0.98;
-            }
-            
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.life;
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
-        }
-        
-        function spawnPig() {
-            const spawnRate = Math.max(2000 - level * 100, 500);
-            if (Math.random() < 1 / (spawnRate / 16)) {
-                pigs.push(new Pig());
-            }
-        }
-        
-        function createParticles(x, y, count = 20) {
-            for (let i = 0; i < count; i++) {
-                particles.push(new Particle(x, y));
-            }
-        }
-        
-        function updateGame(currentTime) {
-            if (!gameRunning) return;
-            
-            const deltaTime = currentTime - lastTime;
-            lastTime = currentTime;
-            
-            // Clear canvas
-            ctx.fillStyle = '#90EE90';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw grass texture
-            ctx.strokeStyle = '#7CFC00';
-            for (let i = 0; i < canvas.width; i += 20) {
-                for (let j = 0; j < canvas.height; j += 20) {
-                    ctx.beginPath();
-                    ctx.moveTo(i, j);
-                    ctx.lineTo(i + 5, j - 5);
-                    ctx.stroke();
-                }
-            }
-            
-            // Update power-up timer
-            if (powerUpActive) {
-                powerUpTimer -= deltaTime;
-                if (powerUpTimer <= 0) {
-                    powerUpActive = false;
-                    document.getElementById('powerUpIndicator').style.display = 'none';
-                }
-            }
-            
-            // Spawn pigs
-            spawnPig();
-            
-            // Update and draw pigs
+            // Check each pig
             for (let i = pigs.length - 1; i >= 0; i--) {
                 const pig = pigs[i];
-                pig.update();
-                pig.draw();
+                if (!pig.alive) continue;
                 
-                // Remove pigs that escaped
-                if (pig.y < -pig.size) {
-                    pigs.splice(i, 1);
-                    if (!pig.clicked) {
-                        lives--;
+                // Calculate distance to pig
+                const toPig = new THREE.Vector3();
+                toPig.subVectors(pig.mesh.position, camera.position);
+                const distance = toPig.length();
+                
+                // Check if pig is in range (3 units) and in front
+                if (distance < 3) {
+                    const angle = rayDirection.angleTo(toPig);
+                    if (angle < Math.PI / 4) { // 45 degree cone
+                        pig.hit();
+                        pigs.splice(i, 1);
+                        
+                        // Update score
+                        const points = 10 + level * 5;
+                        score += points;
                         updateUI();
-                        if (lives <= 0) {
-                            endGame();
+                        
+                        // Show hit marker
+                        showHitMarker(window.innerWidth / 2, window.innerHeight / 2, points);
+                        
+                        // Level up
+                        if (score > 0 && score % 100 === 0) {
+                            level++;
+                            updateUI();
                         }
                     }
                 }
             }
-            
-            // Update and draw particles
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const particle = particles[i];
-                particle.update();
-                particle.draw();
-                
-                if (particle.life <= 0) {
-                    particles.splice(i, 1);
-                }
-            }
-            
-            // Level up
-            if (score > 0 && score % 50 === 0 && score !== lastLevelScore) {
-                level++;
-                lastLevelScore = score;
-                updateUI();
-            }
-            
-            requestAnimationFrame(updateGame);
         }
         
-        let lastLevelScore = 0;
+        class Pig {
+            constructor() {
+                this.mesh = new THREE.Group();
+                this.velocity = new THREE.Vector3();
+                this.alive = true;
+                this.animationTime = Math.random() * Math.PI * 2;
+                
+                // Body
+                const bodyGeometry = new THREE.SphereGeometry(1.5, 16, 16);
+                const bodyMaterial = new THREE.MeshLambertMaterial({ 
+                    color: 0xFFB6C1 
+                });
+                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                body.scale.set(1.2, 1, 1);
+                body.castShadow = true;
+                this.body = body;
+                this.mesh.add(body);
+                
+                // Head
+                const headGeometry = new THREE.SphereGeometry(1, 16, 16);
+                const headMaterial = new THREE.MeshLambertMaterial({ 
+                    color: 0xFFB6C1 
+                });
+                const head = new THREE.Mesh(headGeometry, headMaterial);
+                head.position.set(1.5, 0.3, 0);
+                head.castShadow = true;
+                this.mesh.add(head);
+                
+                // Snout
+                const snoutGeometry = new THREE.CylinderGeometry(0.3, 0.5, 0.5);
+                const snoutMaterial = new THREE.MeshLambertMaterial({ 
+                    color: 0xFF69B4 
+                });
+                const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
+                snout.rotation.z = Math.PI / 2;
+                snout.position.set(2.2, 0.3, 0);
+                this.mesh.add(snout);
+                
+                // Eyes
+                const eyeGeometry = new THREE.SphereGeometry(0.15);
+                const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+                const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                leftEye.position.set(1.8, 0.6, 0.4);
+                this.mesh.add(leftEye);
+                
+                const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                rightEye.position.set(1.8, 0.6, -0.4);
+                this.mesh.add(rightEye);
+                
+                // Ears
+                const earGeometry = new THREE.ConeGeometry(0.3, 0.6, 4);
+                const earMaterial = new THREE.MeshLambertMaterial({ color: 0xFFB6C1 });
+                
+                const leftEar = new THREE.Mesh(earGeometry, earMaterial);
+                leftEar.position.set(1.2, 1, 0.5);
+                leftEar.rotation.z = -0.3;
+                this.mesh.add(leftEar);
+                
+                const rightEar = new THREE.Mesh(earGeometry, earMaterial);
+                rightEar.position.set(1.2, 1, -0.5);
+                rightEar.rotation.z = 0.3;
+                this.mesh.add(rightEar);
+                
+                // Legs
+                const legGeometry = new THREE.CylinderGeometry(0.2, 0.25, 1.2);
+                const legMaterial = new THREE.MeshLambertMaterial({ color: 0xFFB6C1 });
+                
+                // Front legs
+                this.frontLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
+                this.frontLeftLeg.position.set(0.8, -1, 0.6);
+                this.frontLeftLeg.castShadow = true;
+                this.mesh.add(this.frontLeftLeg);
+                
+                this.frontRightLeg = new THREE.Mesh(legGeometry, legMaterial);
+                this.frontRightLeg.position.set(0.8, -1, -0.6);
+                this.frontRightLeg.castShadow = true;
+                this.mesh.add(this.frontRightLeg);
+                
+                // Back legs
+                this.backLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
+                this.backLeftLeg.position.set(-0.8, -1, 0.6);
+                this.backLeftLeg.castShadow = true;
+                this.mesh.add(this.backLeftLeg);
+                
+                this.backRightLeg = new THREE.Mesh(legGeometry, legMaterial);
+                this.backRightLeg.position.set(-0.8, -1, -0.6);
+                this.backRightLeg.castShadow = true;
+                this.mesh.add(this.backRightLeg);
+                
+                // Tail
+                const tailGeometry = new THREE.ConeGeometry(0.2, 1, 8);
+                const tailMaterial = new THREE.MeshLambertMaterial({ 
+                    color: 0xFFB6C1 
+                });
+                const tail = new THREE.Mesh(tailGeometry, tailMaterial);
+                tail.rotation.z = -Math.PI / 4;
+                tail.position.set(-1.5, 0.5, 0);
+                this.tail = tail;
+                this.mesh.add(tail);
+                
+                // Random spawn position on ground
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 20 + Math.random() * 30;
+                this.mesh.position.set(
+                    Math.cos(angle) * distance,
+                    1.7, // Height adjusted for legs
+                    Math.sin(angle) * distance
+                );
+                
+                // Random movement direction
+                const targetAngle = angle + Math.PI + (Math.random() - 0.5) * Math.PI/2;
+                const speed = 8 + level * 1.5 + Math.random() * 4;
+                this.velocity.set(
+                    Math.cos(targetAngle) * speed,
+                    0,
+                    Math.sin(targetAngle) * speed
+                );
+                
+                // Face movement direction
+                this.mesh.lookAt(
+                    this.mesh.position.x + this.velocity.x,
+                    this.mesh.position.y,
+                    this.mesh.position.z + this.velocity.z
+                );
+                
+                scene.add(this.mesh);
+            }
+            
+            update(deltaTime) {
+                if (!this.alive) return;
+                
+                // Move pig
+                this.mesh.position.add(
+                    this.velocity.clone().multiplyScalar(deltaTime)
+                );
+                
+                // Keep pig on ground
+                this.mesh.position.y = 1.7;
+                
+                // Running animation
+                this.animationTime += deltaTime * 8;
+                const legSwing = Math.sin(this.animationTime) * 0.3;
+                const bounce = Math.abs(Math.sin(this.animationTime * 2)) * 0.1;
+                
+                // Animate legs
+                this.frontLeftLeg.rotation.x = legSwing;
+                this.frontRightLeg.rotation.x = -legSwing;
+                this.backLeftLeg.rotation.x = -legSwing;
+                this.backRightLeg.rotation.x = legSwing;
+                
+                // Body bounce
+                this.body.position.y = bounce;
+                
+                // Tail wiggle
+                this.tail.rotation.z = -Math.PI / 4 + Math.sin(this.animationTime * 3) * 0.2;
+                
+                // Remove if too far
+                const distance = Math.sqrt(
+                    this.mesh.position.x * this.mesh.position.x + 
+                    this.mesh.position.z * this.mesh.position.z
+                );
+                if (distance > 80) {
+                    this.remove();
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            hit() {
+                this.alive = false;
+                
+                // Create particles
+                for (let i = 0; i < 20; i++) {
+                    const particle = new Particle(
+                        this.mesh.position.x,
+                        this.mesh.position.y,
+                        this.mesh.position.z,
+                        0xFFD700
+                    );
+                    particles.push(particle);
+                }
+                
+                this.remove();
+            }
+            
+            remove() {
+                scene.remove(this.mesh);
+            }
+        }
         
-        function handleClick(e) {
+        class Particle {
+            constructor(x, y, z, color) {
+                const geometry = new THREE.SphereGeometry(0.2);
+                const material = new THREE.MeshBasicMaterial({ color: color });
+                this.mesh = new THREE.Mesh(geometry, material);
+                this.mesh.position.set(x, y, z);
+                
+                this.velocity = new THREE.Vector3(
+                    (Math.random() - 0.5) * 10,
+                    Math.random() * 10,
+                    (Math.random() - 0.5) * 10
+                );
+                
+                this.life = 1;
+                scene.add(this.mesh);
+            }
+            
+            update(deltaTime) {
+                this.mesh.position.add(
+                    this.velocity.clone().multiplyScalar(deltaTime)
+                );
+                this.velocity.y -= 20 * deltaTime; // Gravity
+                
+                this.life -= deltaTime * 2;
+                this.mesh.scale.setScalar(this.life);
+                this.mesh.material.opacity = this.life;
+                
+                if (this.life <= 0) {
+                    scene.remove(this.mesh);
+                    return false;
+                }
+                return true;
+            }
+        }
+        
+        function spawnPig() {
+            const now = Date.now();
+            const spawnDelay = Math.max(2000 - level * 100, 500);
+            
+            if (now - lastSpawnTime > spawnDelay) {
+                pigs.push(new Pig());
+                lastSpawnTime = now;
+            }
+        }
+        
+        function onClick(event) {
             if (!gameRunning) return;
             
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            for (let i = pigs.length - 1; i >= 0; i--) {
-                const pig = pigs[i];
-                if (pig.checkClick(x, y)) {
-                    pig.clicked = true;
-                    const points = powerUpActive ? 10 : 5;
-                    score += points;
-                    createParticles(pig.x + pig.size/2, pig.y + pig.size/2);
-                    pigs.splice(i, 1);
-                    updateUI();
-                    
-                    // Show points
-                    ctx.save();
-                    ctx.font = 'bold 24px Arial';
-                    ctx.fillStyle = '#FFD700';
-                    ctx.strokeStyle = 'black';
-                    ctx.lineWidth = 3;
-                    ctx.strokeText(`+${points}`, x, y);
-                    ctx.fillText(`+${points}`, x, y);
-                    ctx.restore();
-                    
-                    break;
-                }
+            // Request pointer lock on first click
+            if (!isPointerLocked) {
+                renderer.domElement.requestPointerLock();
+            } else {
+                // Swing axe if pointer is locked
+                swingAxe();
             }
+        }
+        
+        function onKeyDown(event) {
+            if (!gameRunning) return;
+            
+            switch (event.code) {
+                case 'ArrowUp':
+                case 'KeyW':
+                    moveForward = true;
+                    break;
+                case 'ArrowDown':
+                case 'KeyS':
+                    moveBackward = true;
+                    break;
+                case 'ArrowLeft':
+                case 'KeyA':
+                    moveLeft = true;
+                    break;
+                case 'ArrowRight':
+                case 'KeyD':
+                    moveRight = true;
+                    break;
+                case 'Space':
+                    if (canJump) velocity.y = 10;
+                    canJump = false;
+                    break;
+                case 'Escape':
+                    if (document.pointerLockElement) {
+                        document.exitPointerLock();
+                    }
+                    break;
+            }
+        }
+        
+        function onKeyUp(event) {
+            switch (event.code) {
+                case 'ArrowUp':
+                case 'KeyW':
+                    moveForward = false;
+                    break;
+                case 'ArrowDown':
+                case 'KeyS':
+                    moveBackward = false;
+                    break;
+                case 'ArrowLeft':
+                case 'KeyA':
+                    moveLeft = false;
+                    break;
+                case 'ArrowRight':
+                case 'KeyD':
+                    moveRight = false;
+                    break;
+            }
+        }
+        
+        function onMouseMove(event) {
+            if (!isPointerLocked || !gameRunning) return;
+            
+            const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+            const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+            
+            // Horizontal rotation (yaw)
+            rotation -= movementX * 0.002;
+            
+            // Vertical rotation (pitch) with limits
+            pitch -= movementY * 0.002;
+            pitch = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, pitch));
+        }
+        
+        function onPointerLockChange() {
+            isPointerLocked = document.pointerLockElement === renderer.domElement;
+            
+            if (!isPointerLocked && gameRunning) {
+                // Show a message to click to resume
+                const instructions = document.getElementById('instructions');
+                instructions.textContent = 'Click to resume playing';
+                instructions.style.display = 'block';
+            }
+        }
+        
+        function onTouchStart(event) {
+            const touch = event.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+        }
+        
+        function onTouchMove(event) {
+            if (!gameRunning) return;
+            event.preventDefault();
+            
+            const touch = event.touches[0];
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = touch.clientY - touchStartY;
+            
+            // Use touch movement for looking around
+            rotation -= deltaX * 0.005;
+            pitch -= deltaY * 0.005;
+            pitch = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, pitch));
+            
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+        }
+        
+        function onTouchShoot(event) {
+            if (!gameRunning) return;
+            event.preventDefault();
+            swingAxe();
+        }
+        
+        function shoot(x, y) {
+            // Removed - no longer shooting
+        }
+        
+        function showHitMarker(x, y, points) {
+            const marker = document.createElement('div');
+            marker.className = 'hit-marker';
+            marker.textContent = `+${points}`;
+            marker.style.left = x + 'px';
+            marker.style.top = y + 'px';
+            document.body.appendChild(marker);
+            
+            setTimeout(() => marker.remove(), 800);
         }
         
         function updateUI() {
             document.getElementById('score').textContent = score;
             document.getElementById('level').textContent = level;
-            document.getElementById('lives').textContent = lives;
             
             if (score > highScore) {
                 highScore = score;
-                localStorage.setItem('pigCatcherHighScore', highScore);
+                localStorage.setItem('pigShooterHighScore', highScore);
                 document.getElementById('highScore').textContent = highScore;
             }
         }
         
+        function updateTimer() {
+            timeLeft--;
+            document.getElementById('timer').textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                endGame();
+            }
+        }
+        
         function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('instructions').style.display = 'block';
+            
             score = 0;
             level = 1;
-            lives = 3;
+            timeLeft = 60;
             pigs = [];
             particles = [];
             gameRunning = true;
-            lastTime = performance.now();
-            lastLevelScore = 0;
+            lastSpawnTime = 0;
+            
+            // Reset camera position
+            camera.position.set(0, 5, 20);
+            rotation = 0;
+            pitch = 0;
+            
             updateUI();
-            requestAnimationFrame(updateGame);
+            
+            gameTimer = setInterval(updateTimer, 1000);
+            
+            // Update instructions for melee combat
+            document.getElementById('instructions').innerHTML = 
+                'Click to lock mouse • WASD/Arrows to move • Mouse to look • Click to swing axe • Get close to hit! • ESC to unlock';
+            
+            // Hide instructions after 5 seconds
+            setTimeout(() => {
+                if (isPointerLocked) {
+                    document.getElementById('instructions').style.display = 'none';
+                }
+            }, 5000);
+            
+            animate();
         }
         
         function endGame() {
             gameRunning = false;
+            clearInterval(gameTimer);
+            
             document.getElementById('finalScore').textContent = score;
             document.getElementById('bestScore').textContent = highScore;
+            document.getElementById('finalLevel').textContent = level;
             document.getElementById('gameOverModal').style.display = 'flex';
+            
+            // Clear remaining pigs
+            pigs.forEach(pig => pig.remove());
+            pigs = [];
         }
         
         function restartGame() {
@@ -559,20 +1037,89 @@
             startGame();
         }
         
-        // Event listeners
-        canvas.addEventListener('click', handleClick);
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const mouseEvent = new MouseEvent('click', {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
-            canvas.dispatchEvent(mouseEvent);
-        });
+        function animate() {
+            if (!gameRunning) return;
+            
+            requestAnimationFrame(animate);
+            
+            const deltaTime = clock.getDelta();
+            
+            // Update player movement
+            updatePlayerMovement(deltaTime);
+            
+            // Update axe animation
+            updateAxeAnimation(deltaTime);
+            
+            // Spawn pigs
+            spawnPig();
+            
+            // Update pigs
+            for (let i = pigs.length - 1; i >= 0; i--) {
+                if (!pigs[i].update(deltaTime)) {
+                    pigs.splice(i, 1);
+                }
+            }
+            
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                if (!particles[i].update(deltaTime)) {
+                    particles.splice(i, 1);
+                }
+            }
+            
+            renderer.render(scene, camera);
+        }
         
-        // Prevent context menu on canvas
-        canvas.addEventListener('contextmenu', e => e.preventDefault());
+        function updatePlayerMovement(deltaTime) {
+            // Apply rotation
+            camera.rotation.y = rotation;
+            camera.rotation.x = pitch;
+            
+            // Movement speed
+            const moveSpeed = 20;
+            const actualMoveSpeed = moveSpeed * deltaTime;
+            
+            // Calculate movement direction
+            direction.z = Number(moveForward) - Number(moveBackward);
+            direction.x = Number(moveRight) - Number(moveLeft);
+            direction.normalize();
+            
+            // Apply movement relative to camera rotation
+            if (moveForward || moveBackward) {
+                camera.position.x -= Math.sin(rotation) * direction.z * actualMoveSpeed;
+                camera.position.z -= Math.cos(rotation) * direction.z * actualMoveSpeed;
+            }
+            
+            if (moveLeft || moveRight) {
+                camera.position.x += Math.cos(rotation) * direction.x * actualMoveSpeed;
+                camera.position.z -= Math.sin(rotation) * direction.x * actualMoveSpeed;
+            }
+            
+            // Simple gravity
+            velocity.y -= 25 * deltaTime;
+            camera.position.y += velocity.y * deltaTime;
+            
+            // Ground collision
+            if (camera.position.y < 5) {
+                camera.position.y = 5;
+                velocity.y = 0;
+                canJump = true;
+            }
+            
+            // Boundary limits
+            const boundary = 90;
+            camera.position.x = Math.max(-boundary, Math.min(boundary, camera.position.x));
+            camera.position.z = Math.max(-boundary, Math.min(boundary, camera.position.z));
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // Initialize game
+        init();
     </script>
 </body>
 </html>
